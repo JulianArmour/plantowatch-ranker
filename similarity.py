@@ -4,6 +4,8 @@ import json
 from sklearn.metrics.pairwise import cosine_similarity
 from anilist_api import AnilistAPI, AnilistRequestError, AnilistPrivateUser, AnilistUserNotFound
 
+import argparse
+
 
 def normalize_ratings(df):
     """
@@ -87,10 +89,15 @@ def predict_user_ratings(username, similarity_matrix, api: AnilistAPI):
 
     return predicted_ratings
 
+parser = argparse.ArgumentParser()
+parser.add_argument("username")
+parser.add_argument("--ratings", default="ratings.json")
+args = parser.parse_args()
+
 api = AnilistAPI()
 
 # Load the ratings data from the JSON file
-with open('ratings.json', 'r') as file:
+with open(args.ratings, 'r') as file:
     ratings_data = json.load(file)
 
 # Create a dictionary to store the data
@@ -127,4 +134,4 @@ print(df.describe())
 norm = normalize_ratings(df)
 norm = norm.fillna(0)
 sim = cosine_similarity_matrix(norm)
-predictions = predict_user_ratings("SimpleCore", sim, api)
+predictions = predict_user_ratings(args.username, sim, api)
